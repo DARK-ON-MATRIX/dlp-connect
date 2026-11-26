@@ -107,25 +107,25 @@ footer span{display:block;color:#75c8ff;font-size:10px;letter-spacing:4px;margin
 <script>
 (()=>{'use strict';
 const API='https://dlp-connect-worker.arturoragusa82.workers.dev',$=id=>document.getElementById(id);
-let socket=null,expires=0,id='',token='',mode='xtream';
+let socket=null,expires=0,id='',token='',mode='xtream',peerConnected=false;
 function status(t,k=''){ $('status').textContent=t;$('dot').className='dot '+k }
 function message(t,bad=false){const el=$('message');el.textContent=t;el.className='show'+(bad?' bad':'')}
 function fail(t){$('error').style.display='block';$('error').textContent=t;status('Collegamento non riuscito','error')}
 function setMode(next){mode=next;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));$('xtreamFields').style.display=mode==='xtream'?'block':'none';$('m3uFields').style.display=mode==='m3u'?'block':'none';$('message').className=''}
-function sendPlaylist(e){e.preventDefault();if(!socket||socket.readyState!==WebSocket.OPEN){message('Telefono non collegato alla TV. Riconnetti il QR.',true);return}
+function sendPlaylist(e){e.preventDefault();if(!peerConnected||!socket||socket.readyState!==WebSocket.OPEN){message('La TV non è ancora collegata. Attendi il completamento del pairing.',true);return}
 const name=$('pname').value.trim()||(mode==='xtream'?'Xtream':'M3U');
 const epg=$('epg').value.trim();let playlist;
 if(mode==='xtream'){const sv=$('server').value.trim(),su=$('username').value.trim(),sp=$('password').value;if(!sv||!su||!sp){message('Inserisci server, username e password.',true);return}playlist={name,sv,su,sp,url:'',epg}}
 else{const url=$('m3u').value.trim();if(!url){message('Inserisci l’indirizzo della playlist M3U.',true);return}playlist={name,sv:'',su:'',sp:'',url,epg}}
 $('sendPlaylist').disabled=true;socket.send(JSON.stringify({type:'playlist_add',playlist}));message('Invio della playlist alla TV…');}
 function connect(){if(socket&&socket.readyState<2)return;socket=new WebSocket(API.replace(/^http/,'ws')+'/api/session/'+id+'/ws?role=phone&token='+encodeURIComponent(token));
-socket.onopen=()=>{status('Telefono collegato alla TV','good');$('remote').className='remote show';$('playlistArea').className='card show';$('intro').textContent='Collegamento attivo: usa il telecomando o invia una playlist.';$('sendPlaylist').disabled=false;$('code').style.display='block';$('code').textContent='SESSIONE '+id.slice(0,8).toUpperCase()};
-socket.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='peer_connected')status('TV e telefono collegati','good');if(d.type==='playlist_result'){if(d.ok){message(d.message||('Playlist "'+(d.name||'')+'" ricevuta dalla TV.'));$('playlistForm').reset()}else message(d.message||'La TV non ha potuto salvare la playlist.',true);$('sendPlaylist').disabled=!(socket&&socket.readyState===WebSocket.OPEN)}}catch(_){}};
-socket.onclose=()=>{$('sendPlaylist').disabled=true;status('Connessione interrotta','wait');message('Connessione con la TV interrotta. Scansiona un nuovo QR per ricollegarti.',true)};
+socket.onopen=()=>{peerConnected=false;status('Server raggiunto: attendo il collegamento della TV…','wait');$('remote').className='remote';$('playlistArea').className='card';$('intro').textContent='QR riconosciuto. Sto aspettando che la TV completi il collegamento.';$('sendPlaylist').disabled=true;$('code').style.display='block';$('code').textContent='SESSIONE '+id.slice(0,8).toUpperCase()};
+socket.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='peer_connected'){peerConnected=true;status('TV e telefono collegati','good');$('remote').className='remote show';$('playlistArea').className='card show';$('intro').textContent='Collegamento attivo: usa il telecomando o invia una playlist.';$('sendPlaylist').disabled=false;}if(d.type==='playlist_result'){if(d.ok){message(d.message||('Playlist "'+(d.name||'')+'" ricevuta dalla TV.'));$('playlistForm').reset()}else message(d.message||'La TV non ha potuto salvare la playlist.',true);$('sendPlaylist').disabled=!(socket&&socket.readyState===WebSocket.OPEN)}}catch(_){}};
+socket.onclose=()=>{peerConnected=false;$('remote').className='remote';$('playlistArea').className='card';$('sendPlaylist').disabled=true;status('Connessione interrotta','wait');message('Connessione con la TV interrotta. Scansiona un nuovo QR per ricollegarti.',true)};
 socket.onerror=()=>status('Problema di connessione','error');
 }
 async function start(){const h=location.hash.match(/^#dlp([a-f0-9]{32})\.([A-Za-z0-9_-]+)$/);if(!h){status('In attesa del QR della TV','wait');return}id=h[1];token=h[2];expires=Date.now()+300000;status('Verifico la sessione…','wait');try{const r=await fetch(API+'/api/session/'+id+'/status',{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error||'Sessione non disponibile');if(d.expiresIn<=0)throw Error('QR scaduto. Generane uno nuovo dalla TV.');expires=Date.now()+d.expiresIn*1000;connect()}catch(e){fail(e.message)}}
-document.querySelectorAll('[data-key]').forEach(b=>b.addEventListener('click',()=>{if(socket&&socket.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'key',key:b.dataset.key}))}));
+document.querySelectorAll('[data-key]').forEach(b=>b.addEventListener('click',()=>{if(peerConnected&&socket&&socket.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'key',key:b.dataset.key}))}));
 document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
 $('playlistForm').addEventListener('submit',sendPlaylist);
 start();
