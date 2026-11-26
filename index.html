@@ -1,15 +1,135 @@
 <!doctype html>
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#071a35"><title>DLPonTOP Phone Connect</title>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#06152b">
+<title>DLPonTOP • Phone Connect</title>
 <style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:20px 16px 28px;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 0,#174b83,#061326 72%);color:#f3f8ff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}main{width:min(100%,480px)}header{text-align:center;margin-bottom:18px}.logo{display:grid;place-items:center;width:88px;height:88px;margin:0 auto 10px;border:2px solid #55cfff;border-radius:24px;background:linear-gradient(145deg,#123e69,#071a32);box-shadow:0 0 30px #168cff66;font-weight:950;font-size:32px;letter-spacing:-2px;color:#d9f2ff}h1{font-size:26px;margin:8px 0 5px;letter-spacing:.5px}p{color:#a9bdd5;line-height:1.45;margin:8px 0}.card{background:linear-gradient(155deg,#102b4e,#091a31);border:1px solid #2b527b;border-radius:22px;padding:20px;box-shadow:0 18px 50px #0005;text-align:center}.status{margin-bottom:12px;color:#c5d7e9;font-size:14px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#8194a8;margin-right:8px}.good{background:#37e39a}.wait{background:#ffc65c}.error{background:#ff6977}.hint{font-size:12px;text-align:center}.remote{display:none;margin-top:16px;gap:10px;grid-template-columns:repeat(3,1fr);align-items:center}.remote.show{display:grid}.remote button{min-height:62px;border:1px solid #438bc4;border-radius:14px;background:linear-gradient(145deg,#164d7c,#0b2c4c);color:#fff;font-size:20px;font-weight:800;box-shadow:0 5px 15px #0004;touch-action:manipulation}.remote button:active{transform:scale(.96);background:#167fc2}.remote .blank{visibility:hidden}.remote .ok{background:linear-gradient(100deg,#0876e8,#16b5ed);color:white}.remote .wide{font-size:13px;letter-spacing:.5px}.code{font:11px monospace;word-break:break-all;background:#07172a;padding:9px;border-radius:10px;margin-top:12px;color:#9fc8eb}#error{display:none;color:#ff9da4;font-size:13px}footer{text-align:center;color:#d9edff;margin-top:22px;font-size:12px;letter-spacing:2px;font-weight:750}footer span{display:block;color:#75c8ff;font-size:11px;letter-spacing:4px;margin-top:5px}
-</style></head><body><main><header><div class="logo">DLP</div><h1>DLPonTOP PHONE CONNECT</h1><p>Telecomando per la tua TV Samsung</p></header><section class="card"><div class="status"><span id="dot" class="dot"></span><span id="status">In attesa del QR della TV</span></div><p id="intro">Apri Phone Connect sulla TV e inquadra il QR con la fotocamera del telefono.</p><div id="remote" class="remote"><span class="blank"></span><button data-key="up">▲</button><span class="blank"></span><button data-key="left">◀</button><button class="ok" data-key="ok">OK</button><button data-key="right">▶</button><span class="blank"></span><button data-key="down">▼</button><span class="blank"></span><button class="wide" data-key="back">INDIETRO</button><button class="wide" data-key="menu">MENU</button><button class="wide" data-key="blue">BLU</button></div><div id="code" class="code" style="display:none"></div><p id="error"></p></section><p class="hint">Il collegamento usa un codice temporaneo di 5 minuti. Nessuna playlist o password IPTV viene trasferita.</p><footer>DARK LEGION PRODUCTION<span>ONLY THE BEST</span></footer></main>
+:root{color-scheme:dark;--cyan:#57d8ff;--blue:#168cff;--muted:#a9bfd9;--line:#28557f}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:22px 15px 30px;display:grid;place-items:center;background:radial-gradient(ellipse at 50% -8%,#2368a7 0,#102f55 31%,#06152b 72%);color:#f4f9ff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+main{width:min(100%,490px)}
+header{text-align:center;margin:0 0 20px}
+.brand{width:100px;height:100px;margin:0 auto 13px;position:relative;display:grid;place-items:center;border:1px solid #7ce4ff;border-radius:29px;background:linear-gradient(145deg,#1b5b91,#09213e 70%);box-shadow:0 0 0 6px #55cfff12,0 0 38px #168cff66,inset 0 1px 0 #ffffff55}
+.brand:before{content:"";position:absolute;inset:7px;border:1px solid #7bdfff55;border-radius:22px}
+.brand strong{font-size:36px;letter-spacing:-3px;font-weight:950;color:#e8f9ff;text-shadow:0 0 18px #63d9ff}
+.brand small{position:absolute;bottom:12px;font-size:8px;letter-spacing:3px;color:#8bdfff;font-weight:800}
+h1{font-size:23px;line-height:1.15;margin:8px 0 5px;letter-spacing:1px}
+.tag{font-size:11px;letter-spacing:3px;color:#78cfff;font-weight:800}
+header p{font-size:13px;color:#b6cbe1;margin:9px 0 0}
+.card{background:linear-gradient(155deg,#102d50f2,#081a31f5);border:1px solid #32618a;border-radius:23px;padding:19px;box-shadow:0 20px 55px #0007,inset 0 1px 0 #ffffff12;margin-top:14px}
+.status{display:flex;align-items:center;justify-content:center;gap:9px;color:#d4e5f6;font-size:13px;text-align:center;min-height:22px}
+.dot{width:9px;height:9px;flex:0 0 9px;border-radius:50%;background:#8194a8;box-shadow:0 0 10px currentColor}
+.good{background:#37e39a}.wait{background:#ffc65c}.error{background:#ff6977}
+.intro{text-align:center;color:#a9bfd5;font-size:13px;line-height:1.5;margin:11px 0 14px}
+.section-title{display:flex;align-items:center;gap:9px;margin:0 0 12px;font-size:14px;letter-spacing:.8px;font-weight:850;color:#e8f6ff}
+.section-title:before{content:"";width:4px;height:18px;border-radius:5px;background:linear-gradient(#6ce7ff,#168cff);box-shadow:0 0 12px #28baff}
+.remote{display:none;margin-top:14px;gap:9px;grid-template-columns:repeat(3,1fr);align-items:center}
+.remote.show{display:grid}
+.remote button{min-height:58px;border:1px solid #438bc4;border-radius:15px;background:linear-gradient(145deg,#164d7c,#0b2c4c);color:#fff;font-size:21px;font-weight:850;box-shadow:0 5px 15px #0004;touch-action:manipulation}
+.remote button:active,.send:active{transform:scale(.97);filter:brightness(1.2)}
+.remote .blank{visibility:hidden}
+.remote .ok{background:linear-gradient(110deg,#0876e8,#16b5ed);border-color:#72dfff}
+.remote .wide{font-size:12px;letter-spacing:.5px}
+#playlistArea{display:none}
+#playlistArea.show{display:block}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px}
+.tab{min-height:43px;border:1px solid #38658d;border-radius:12px;background:#0a2039;color:#b8cce0;font-weight:800;font-size:12px;letter-spacing:.6px}
+.tab.active{background:linear-gradient(110deg,#0876e8,#12aee4);border-color:#7de5ff;color:white;box-shadow:0 5px 18px #0876e844}
+.field{display:block;text-align:left;margin:10px 0}
+.field span{display:block;font-size:11px;color:#a9c4df;font-weight:750;letter-spacing:.6px;margin:0 0 6px 3px}
+.field input{width:100%;height:46px;border:1px solid #315b80;border-radius:12px;background:#06172b;color:#f5faff;padding:0 13px;font-size:14px;outline:none}
+.field input:focus{border-color:#59d8ff;box-shadow:0 0 0 3px #27baff20}
+.field input::placeholder{color:#6f8ba8}
+.send{width:100%;min-height:49px;border:1px solid #7ce5ff;border-radius:13px;background:linear-gradient(105deg,#0876e8,#10b9e8);color:#fff;font-size:13px;font-weight:900;letter-spacing:1px;box-shadow:0 8px 22px #0876e844;touch-action:manipulation;margin-top:8px}
+.send:disabled{opacity:.45;filter:grayscale(.5)}
+.note{font-size:11px;color:#8ea9c4;line-height:1.45;text-align:center;margin:10px 3px 0}
+#message{display:none;padding:10px 12px;margin-top:11px;border-radius:11px;font-size:12px;line-height:1.4;text-align:center;background:#102b45;color:#cceaff;border:1px solid #315c7c}
+#message.show{display:block}
+#message.bad{color:#ffc1c6;border-color:#85434b;background:#321c2b}
+.code{font:11px monospace;word-break:break-all;background:#06172a;padding:9px;border-radius:10px;margin-top:12px;color:#9fc8eb;text-align:center}
+#error{display:none;color:#ff9da4;font-size:13px;text-align:center}
+.hint{font-size:11px;text-align:center;color:#93abc4;line-height:1.5;margin:14px 8px}
+footer{text-align:center;color:#d9edff;margin-top:23px;font-size:11px;letter-spacing:2.4px;font-weight:850}
+footer span{display:block;color:#75c8ff;font-size:10px;letter-spacing:4px;margin-top:6px}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="brand"><strong>DLP</strong><small>ON TOP</small></div>
+  <h1>DLPonTOP PHONE CONNECT</h1>
+  <div class="tag">BLUE EDITION</div>
+  <p>Il tuo telecomando. Le tue playlist. La tua TV.</p>
+</header>
+
+<section class="card">
+  <div class="status"><span id="dot" class="dot"></span><span id="status">In attesa del QR della TV</span></div>
+  <p id="intro" class="intro">Apri Phone Connect sulla TV e inquadra il QR con la fotocamera del telefono.</p>
+  <div id="remote" class="remote">
+    <span class="blank"></span><button data-key="up" aria-label="Su">▲</button><span class="blank"></span>
+    <button data-key="left" aria-label="Sinistra">◀</button><button class="ok" data-key="ok">OK</button><button data-key="right" aria-label="Destra">▶</button>
+    <span class="blank"></span><button data-key="down" aria-label="Giù">▼</button><span class="blank"></span>
+    <button class="wide" data-key="back">INDIETRO</button><button class="wide" data-key="menu">MENU</button><button class="wide" data-key="blue">BLU</button>
+  </div>
+  <div id="code" class="code" style="display:none"></div>
+</section>
+
+<section id="playlistArea" class="card">
+  <h2 class="section-title">AGGIUNGI PLAYLIST ALLA TV</h2>
+  <div class="tabs">
+    <button type="button" class="tab active" data-mode="xtream">XTREAM CODES</button>
+    <button type="button" class="tab" data-mode="m3u">M3U / M3U8</button>
+  </div>
+  <form id="playlistForm" autocomplete="off">
+    <label class="field"><span>NOME PLAYLIST (FACOLTATIVO)</span><input id="pname" maxlength="50" placeholder="La mia playlist"></label>
+    <div id="xtreamFields">
+      <label class="field"><span>SERVER / URL</span><input id="server" inputmode="url" placeholder="https://server:porta"></label>
+      <label class="field"><span>USERNAME</span><input id="username" autocomplete="username" placeholder="Username"></label>
+      <label class="field"><span>PASSWORD</span><input id="password" type="password" autocomplete="new-password" placeholder="Password"></label>
+    </div>
+    <div id="m3uFields" style="display:none">
+      <label class="field"><span>URL PLAYLIST M3U / M3U8</span><input id="m3u" inputmode="url" placeholder="https://indirizzo/playlist.m3u"></label>
+    </div>
+    <label class="field"><span>URL EPG XMLTV (FACOLTATIVO)</span><input id="epg" inputmode="url" placeholder="https://indirizzo/epg.xml"></label>
+    <button id="sendPlaylist" class="send" type="submit" disabled>INVIA ALLA TV</button>
+  </form>
+  <div id="message"></div>
+  <p class="note">I dati vengono inviati solo alla TV collegata nella sessione temporanea. Non inserire credenziali su telefoni o dispositivi non fidati.</p>
+</section>
+
+<p id="error"></p>
+<p class="hint">Il collegamento usa un codice temporaneo di 5 minuti. La sessione si chiude quando scade il QR.</p>
+<footer>DARK LEGION PRODUCTION<span>ONLY THE BEST</span></footer>
+</main>
+
 <script>
-(()=>{'use strict';const API='https://dlp-connect-worker.arturoragusa82.workers.dev',$=id=>document.getElementById(id);let socket=null,timer=null,expires=0,id='',token='';
+(()=>{'use strict';
+const API='https://dlp-connect-worker.arturoragusa82.workers.dev',$=id=>document.getElementById(id);
+let socket=null,expires=0,id='',token='',mode='xtream';
 function status(t,k=''){ $('status').textContent=t;$('dot').className='dot '+k }
+function message(t,bad=false){const el=$('message');el.textContent=t;el.className='show'+(bad?' bad':'')}
 function fail(t){$('error').style.display='block';$('error').textContent=t;status('Collegamento non riuscito','error')}
-function connect(){if(socket&&socket.readyState<2)return;socket=new WebSocket(API.replace(/^http/,'ws')+'/api/session/'+id+'/ws?role=phone&token='+encodeURIComponent(token));socket.onopen=()=>{status('Telefono collegato alla TV','good');$('remote').className='remote';$('intro').textContent='Usa i pulsanti per controllare DLPonTOP.';$('code').style.display='block';$('code').textContent='SESSIONE '+id.slice(0,8).toUpperCase()};socket.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='peer_connected')status('TV e telefono collegati','good')}catch(_){}};socket.onclose=()=>status('Connessione interrotta','wait')}
+function setMode(next){mode=next;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));$('xtreamFields').style.display=mode==='xtream'?'block':'none';$('m3uFields').style.display=mode==='m3u'?'block':'none';$('message').className=''}
+function sendPlaylist(e){e.preventDefault();if(!socket||socket.readyState!==WebSocket.OPEN){message('Telefono non collegato alla TV. Riconnetti il QR.',true);return}
+const name=$('pname').value.trim()||(mode==='xtream'?'Xtream':'M3U');
+const epg=$('epg').value.trim();let playlist;
+if(mode==='xtream'){const sv=$('server').value.trim(),su=$('username').value.trim(),sp=$('password').value;if(!sv||!su||!sp){message('Inserisci server, username e password.',true);return}playlist={name,sv,su,sp,url:'',epg}}
+else{const url=$('m3u').value.trim();if(!url){message('Inserisci l’indirizzo della playlist M3U.',true);return}playlist={name,sv:'',su:'',sp:'',url,epg}}
+$('sendPlaylist').disabled=true;socket.send(JSON.stringify({type:'playlist_add',playlist}));message('Invio della playlist alla TV…');}
+function connect(){if(socket&&socket.readyState<2)return;socket=new WebSocket(API.replace(/^http/,'ws')+'/api/session/'+id+'/ws?role=phone&token='+encodeURIComponent(token));
+socket.onopen=()=>{status('Telefono collegato alla TV','good');$('remote').className='remote show';$('playlistArea').className='card show';$('intro').textContent='Collegamento attivo: usa il telecomando o invia una playlist.';$('sendPlaylist').disabled=false;$('code').style.display='block';$('code').textContent='SESSIONE '+id.slice(0,8).toUpperCase()};
+socket.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='peer_connected')status('TV e telefono collegati','good');if(d.type==='playlist_result'){if(d.ok){message(d.message||('Playlist "'+(d.name||'')+'" ricevuta dalla TV.'));$('playlistForm').reset()}else message(d.message||'La TV non ha potuto salvare la playlist.',true);$('sendPlaylist').disabled=!(socket&&socket.readyState===WebSocket.OPEN)}}catch(_){}};
+socket.onclose=()=>{$('sendPlaylist').disabled=true;status('Connessione interrotta','wait');message('Connessione con la TV interrotta. Scansiona un nuovo QR per ricollegarti.',true)};
+socket.onerror=()=>status('Problema di connessione','error');
+}
 async function start(){const h=location.hash.match(/^#dlp([a-f0-9]{32})\.([A-Za-z0-9_-]+)$/);if(!h){status('In attesa del QR della TV','wait');return}id=h[1];token=h[2];expires=Date.now()+300000;status('Verifico la sessione…','wait');try{const r=await fetch(API+'/api/session/'+id+'/status',{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error||'Sessione non disponibile');if(d.expiresIn<=0)throw Error('QR scaduto. Generane uno nuovo dalla TV.');expires=Date.now()+d.expiresIn*1000;connect()}catch(e){fail(e.message)}}
-document.querySelectorAll('[data-key]').forEach(b=>b.addEventListener('click',()=>{if(socket&&socket.readyState===1)socket.send(JSON.stringify({type:'key',key:b.dataset.key}))}));
+document.querySelectorAll('[data-key]').forEach(b=>b.addEventListener('click',()=>{if(socket&&socket.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'key',key:b.dataset.key}))}));
+document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+$('playlistForm').addEventListener('submit',sendPlaylist);
 start();
 })();
-</script></body></html>
+</script>
+</body>
+</html>
