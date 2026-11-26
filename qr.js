@@ -1,3 +1,5 @@
+JavaScript
+
 /* ---------- Generatore di codici QR (byte mode, correzione L/M, versioni 1-10), solo ES5 ---------- */
 var QR=(function(){
   var ECC_PB={L:[0,7,10,15,20,26,18,20,24,30,18],M:[0,10,16,26,18,24,16,18,22,22,26]};
