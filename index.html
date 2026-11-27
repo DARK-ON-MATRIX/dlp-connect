@@ -25,13 +25,7 @@ header p{font-size:13px;color:#b6cbe1;margin:9px 0 0}
 .intro{text-align:center;color:#a9bfd5;font-size:13px;line-height:1.5;margin:11px 0 14px}
 .section-title{display:flex;align-items:center;gap:9px;margin:0 0 12px;font-size:14px;letter-spacing:.8px;font-weight:850;color:#e8f6ff}
 .section-title:before{content:"";width:4px;height:18px;border-radius:5px;background:linear-gradient(#6ce7ff,#168cff);box-shadow:0 0 12px #28baff}
-.remote{display:none;margin-top:14px;gap:9px;grid-template-columns:repeat(3,1fr);align-items:center}
-.remote.show{display:grid}
-.remote button{min-height:58px;border:1px solid #438bc4;border-radius:15px;background:linear-gradient(145deg,#164d7c,#0b2c4c);color:#fff;font-size:21px;font-weight:850;box-shadow:0 5px 15px #0004;touch-action:manipulation}
-.remote button:active,.send:active{transform:scale(.97);filter:brightness(1.2)}
-.remote .blank{visibility:hidden}
-.remote .ok{background:linear-gradient(110deg,#0876e8,#16b5ed);border-color:#72dfff}
-.remote .wide{font-size:12px;letter-spacing:.5px}
+.send:active{transform:scale(.97);filter:brightness(1.2)}
 #playlistArea{display:none}
 #playlistArea.show{display:block}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px}
@@ -61,18 +55,12 @@ footer span{display:block;color:#75c8ff;font-size:10px;letter-spacing:4px;margin
   <div class="brand"><strong>DLP</strong><small>ON TOP</small></div>
   <h1>DLPonTOP PHONE CONNECT</h1>
   <div class="tag">BLUE EDITION</div>
-  <p>Il tuo telecomando. Le tue playlist. La tua TV.</p>
+  <p>Collega il telefono e inserisci il tuo account sulla TV.</p>
 </header>
 
 <section class="card">
   <div class="status"><span id="dot" class="dot"></span><span id="status">In attesa del QR della TV</span></div>
   <p id="intro" class="intro">Apri Phone Connect sulla TV e inquadra il QR con la fotocamera del telefono.</p>
-  <div id="remote" class="remote">
-    <span class="blank"></span><button data-key="up" aria-label="Su">▲</button><span class="blank"></span>
-    <button data-key="left" aria-label="Sinistra">◀</button><button class="ok" data-key="ok">OK</button><button data-key="right" aria-label="Destra">▶</button>
-    <span class="blank"></span><button data-key="down" aria-label="Giù">▼</button><span class="blank"></span>
-    <button class="wide" data-key="back">INDIETRO</button><button class="wide" data-key="menu">MENU</button><button class="wide" data-key="blue">BLU</button>
-  </div>
   <div id="code" class="code" style="display:none"></div>
 </section>
 
@@ -119,13 +107,12 @@ if(mode==='xtream'){const sv=$('server').value.trim(),su=$('username').value.tri
 else{const url=$('m3u').value.trim();if(!url){message('Inserisci l’indirizzo della playlist M3U.',true);return}playlist={name,sv:'',su:'',sp:'',url,epg}}
 $('sendPlaylist').disabled=true;socket.send(JSON.stringify({type:'playlist_add',playlist}));message('Invio della playlist alla TV…');}
 function connect(){if(socket&&socket.readyState<2)return;socket=new WebSocket(API.replace(/^http/,'ws')+'/api/session/'+id+'/ws?role=phone&token='+encodeURIComponent(token));
-socket.onopen=()=>{peerConnected=false;status('Server raggiunto: attendo il collegamento della TV…','wait');$('remote').className='remote';$('playlistArea').className='card';$('intro').textContent='QR riconosciuto. Sto aspettando che la TV completi il collegamento.';$('sendPlaylist').disabled=true;$('code').style.display='block';$('code').textContent='SESSIONE '+id.slice(0,8).toUpperCase()};
-socket.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='peer_connected'){peerConnected=true;status('TV e telefono collegati','good');$('remote').className='remote show';$('playlistArea').className='card show';$('intro').textContent='Collegamento attivo: usa il telecomando o invia una playlist.';$('sendPlaylist').disabled=false;}if(d.type==='playlist_result'){if(d.ok){message(d.message||('Playlist "'+(d.name||'')+'" ricevuta dalla TV.'));$('playlistForm').reset()}else message(d.message||'La TV non ha potuto salvare la playlist.',true);$('sendPlaylist').disabled=!(socket&&socket.readyState===WebSocket.OPEN)}}catch(_){}};
-socket.onclose=()=>{peerConnected=false;$('remote').className='remote';$('playlistArea').className='card';$('sendPlaylist').disabled=true;status('Connessione interrotta','wait');message('Connessione con la TV interrotta. Scansiona un nuovo QR per ricollegarti.',true)};
+socket.onopen=()=>{peerConnected=false;status('Server raggiunto: attendo il collegamento della TV…','wait');$('playlistArea').className='card';$('intro').textContent='QR riconosciuto. Sto aspettando che la TV completi il collegamento.';$('sendPlaylist').disabled=true;$('code').style.display='block';$('code').textContent='SESSIONE '+id.slice(0,8).toUpperCase()};
+socket.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='peer_connected'){peerConnected=true;status('TV e telefono collegati','good');$('playlistArea').className='card show';$('intro').textContent='Collegamento attivo: inserisci l’account e invialo alla TV.';$('sendPlaylist').disabled=false;}if(d.type==='playlist_result'){if(d.ok){message(d.message||('Playlist "'+(d.name||'')+'" ricevuta dalla TV.'));$('playlistForm').reset()}else message(d.message||'La TV non ha potuto salvare la playlist.',true);$('sendPlaylist').disabled=!(socket&&socket.readyState===WebSocket.OPEN)}}catch(_){}};
+socket.onclose=()=>{peerConnected=false;$('playlistArea').className='card';$('sendPlaylist').disabled=true;status('Connessione interrotta','wait');message('Connessione con la TV interrotta. Scansiona un nuovo QR per ricollegarti.',true)};
 socket.onerror=()=>status('Problema di connessione','error');
 }
 async function start(){const h=location.hash.match(/^#dlp([a-f0-9]{32})\.([A-Za-z0-9_-]+)$/);if(!h){status('In attesa del QR della TV','wait');return}id=h[1];token=h[2];expires=Date.now()+300000;status('Verifico la sessione…','wait');try{const r=await fetch(API+'/api/session/'+id+'/status',{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error||'Sessione non disponibile');if(d.expiresIn<=0)throw Error('QR scaduto. Generane uno nuovo dalla TV.');expires=Date.now()+d.expiresIn*1000;connect()}catch(e){fail(e.message)}}
-document.querySelectorAll('[data-key]').forEach(b=>b.addEventListener('click',()=>{if(peerConnected&&socket&&socket.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'key',key:b.dataset.key}))}));
 document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
 $('playlistForm').addEventListener('submit',sendPlaylist);
 start();
